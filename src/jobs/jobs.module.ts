@@ -34,7 +34,6 @@ import { ConfigService } from '@nestjs/config';
       },
       inject: [ConfigService],
     },
-    ,
     JobsService,
   ],
   exports: [JobsService],
