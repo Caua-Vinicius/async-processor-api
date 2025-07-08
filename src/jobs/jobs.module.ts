@@ -5,6 +5,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { Job, JobSchema } from './jobs.schema';
 import { ServiceBusModule } from 'src/service-bus/servicebus.module';
 import { AzureBlobModule } from 'src/azure-blob/azure-blob.module';
+import { ConfigService } from '@nestjs/config';
 
 @Module({
   imports: [
@@ -21,7 +22,21 @@ import { AzureBlobModule } from 'src/azure-blob/azure-blob.module';
     AzureBlobModule,
   ],
   controllers: [JobsController],
-  providers: [JobsService],
+  providers: [
+    {
+      provide: 'QUEUE_NAME',
+      useFactory: (configService: ConfigService) => {
+        const queueName = configService.get<string>('QUEUE_NAME');
+        if (!queueName) {
+          throw new Error('Queue Name was not configured');
+        }
+        return queueName;
+      },
+      inject: [ConfigService],
+    },
+    ,
+    JobsService,
+  ],
   exports: [JobsService],
 })
 export class JobsModule {}
