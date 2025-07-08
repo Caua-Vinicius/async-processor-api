@@ -1,45 +1,20 @@
 import {
   Injectable,
+  Inject,
   InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
 import { BlobServiceClient, BlockBlobClient } from '@azure/storage-blob';
-import { DefaultAzureCredential } from '@azure/identity';
 import { Readable } from 'stream';
 
 @Injectable()
 export class AzureBlobService {
-  private readonly blobServiceClient: BlobServiceClient;
-  private readonly containerName: string;
-
-  constructor(private configService: ConfigService) {
-    const accountName = this.configService.get<string>(
-      'AZURE_STORAGE_ACCOUNT_NAME',
-    );
-    if (!accountName) {
-      throw new InternalServerErrorException(
-        'Azure Storage Account Name was not configured',
-      );
-    }
-
-    const blobServiceUrl = `https://${accountName}.blob.core.windows.net`;
-
-    const credential = new DefaultAzureCredential();
-
-    this.blobServiceClient = new BlobServiceClient(blobServiceUrl, credential);
-
-    this.containerName = this.configService.get<string>(
-      'AZURE_STORAGE_CONTAINER_NAME',
-    );
-
-    if (!this.containerName) {
-      throw new InternalServerErrorException(
-        'Azure Storage Container Name was not configured',
-      );
-    }
-  }
-
+  constructor(
+    @Inject('BLOB_SERVICE_CLIENT')
+    private readonly blobServiceClient: BlobServiceClient,
+    @Inject('AZURE_STORAGE_CONTAINER_NAME')
+    private readonly containerName: string,
+  ) {}
   private getBlockBlobClient(blobName: string): BlockBlobClient {
     const containerClient = this.blobServiceClient.getContainerClient(
       this.containerName,
