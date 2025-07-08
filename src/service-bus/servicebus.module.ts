@@ -2,6 +2,7 @@ import { Global, Module } from '@nestjs/common';
 import { ServiceBusService } from './servicebus.service';
 import { ConfigService } from '@nestjs/config';
 import { ServiceBusClient } from '@azure/service-bus';
+import { DefaultAzureCredential } from '@azure/identity';
 
 @Global()
 @Module({
@@ -9,13 +10,19 @@ import { ServiceBusClient } from '@azure/service-bus';
     {
       provide: 'SERVICE_BUS_CLIENT',
       useFactory: (configService: ConfigService) => {
-        const connectionString = configService.get<string>(
-          'SERVICE_BUS_CONNECTION_STRING',
+        const fullyQualifiedNamespace = configService.get<string>(
+          'SERVICE_BUS_FULLY_QUALIFIED_NAMESPACE',
         );
-        if (!connectionString) {
-          throw new Error('SERVICE_BUS_CONNECTION_STRING it is not defined.');
+
+        if (!fullyQualifiedNamespace) {
+          throw new Error(
+            'SERVICE_BUS_FULLY_QUALIFIED_NAMESPACE it is not defined.',
+          );
         }
-        return new ServiceBusClient(connectionString);
+
+        const credential = new DefaultAzureCredential();
+
+        return new ServiceBusClient(fullyQualifiedNamespace, credential);
       },
       inject: [ConfigService],
     },
