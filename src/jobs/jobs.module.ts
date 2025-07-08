@@ -4,6 +4,7 @@ import { JobsService } from './jobs.service';
 import { MongooseModule } from '@nestjs/mongoose';
 import { Job, JobSchema } from './jobs.schema';
 import { ServiceBusModule } from 'src/service-bus/servicebus.module';
+import { AzureBlobModule } from 'src/azure-blob/azure-blob.module';
 
 @Module({
   imports: [
@@ -17,6 +18,7 @@ import { ServiceBusModule } from 'src/service-bus/servicebus.module';
       },
     ]),
     ServiceBusModule,
+    AzureBlobModule,
   ],
   controllers: [JobsController],
   providers: [JobsService],
