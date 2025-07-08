@@ -1,10 +1,9 @@
-import { Global, Module } from '@nestjs/common';
+import { Module } from '@nestjs/common';
 import { ServiceBusService } from './servicebus.service';
 import { ConfigService } from '@nestjs/config';
 import { ServiceBusClient } from '@azure/service-bus';
 import { DefaultAzureCredential } from '@azure/identity';
 
-@Global()
 @Module({
   providers: [
     {
