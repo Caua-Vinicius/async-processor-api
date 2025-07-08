@@ -1,17 +1,17 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Job } from './jobs.schema';
 import { Model } from 'mongoose';
 import { CreateJobPayloadDto } from './dtos/create-job.dto';
-import { ConfigService } from '@nestjs/config';
 import { ServiceBusService } from 'src/service-bus/servicebus.service';
 
 @Injectable()
 export class JobsService {
   constructor(
     @InjectModel('Job') private jobModel: Model<Job>,
-    private readonly configService: ConfigService,
     private readonly serviceBusService: ServiceBusService,
+    @Inject('QUEUE_NAME')
+    private readonly queueName: string,
   ) {}
 
   async create(createjobPayloadDto: CreateJobPayloadDto): Promise<Job> {
@@ -19,13 +19,12 @@ export class JobsService {
       inputData: createjobPayloadDto,
     });
 
-    const queueName = this.configService.get<string>('QUEUE_NAME');
     const message = {
       jobId: newJob._id,
       inputData: newJob.inputData,
     };
 
-    await this.serviceBusService.sendMessage(queueName, message);
+    await this.serviceBusService.sendMessage(this.queueName, message);
 
     return newJob.save();
   }
