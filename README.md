@@ -12,6 +12,10 @@ The solution implements the **Asynchronous Request-Reply** pattern to ensure a r
 
 ### 🧭 Flow Overview
 
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/c82dfa58-5ccf-4e51-865d-4b04cd7845fc" width="900"/>
+</p>
+
 1. **Request Ingestion (NestJS API):**  
    A client submits a `POST /invoices` request. The API validates input, creates a job record in the database (`Queued` status), and immediately returns `202 Accepted` with a `jobId`.
 
